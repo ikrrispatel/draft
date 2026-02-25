@@ -82,10 +82,13 @@ function scoreVision(state: DraftState): CategoryExplanation {
         failed.push("V-1");
     }
 
-    // V-2: single proposition (no "and" joining two distinct value props) → +25
+    // V-2: single proposition (no multi-"and" / "&" joining distinct value props) → +25
+    // Deterministic regex: count standalone "and" (\band\b) plus " & " occurrences
     const wedge = state.vision.wedge_statement;
-    const andParts = wedge.split(/\band\b/i);
-    if (andParts.length <= 2) {
+    const andMatches = (wedge.match(/\band\b/gi) ?? []).length;
+    const ampMatches = (wedge.match(/\s&\s/g) ?? []).length;
+    const conjunctionCount = andMatches + ampMatches;
+    if (conjunctionCount <= 1) {
         score += 25;
         applied.push("V-2");
     } else {

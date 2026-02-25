@@ -79,20 +79,39 @@ export async function runDraft(intakeUnknown: unknown): Promise<DraftState> {
 
     // 7. Handle targeted reruns (max 1 per agent, single pass)
     if (qa.revision_requests.length > 0) {
-        const rerunAgents: string[] = [];
+        // Deduplicate: keep only the first revision_request per agent
+        const seen = new Set<string>();
+        const dedupedRequests = qa.revision_requests.filter((r) => {
+            if (seen.has(r.target_agent)) return false;
+            seen.add(r.target_agent);
+            return true;
+        });
 
-        for (const request of qa.revision_requests) {
+        const rerunSet = new Set<string>();
+
+        for (const request of dedupedRequests) {
             const agentName = request.target_agent as AgentName;
 
-            // Build the input for the rerun based on agent type
-            const rerunResult = await callAgent(agentName, {
-                intake,
-                vision,
-                scope,
-                distribution,
-                architecture,
-                revision_instruction: request.instruction,
-            });
+            // Build agent-specific rerun input (minimal context per agent)
+            let rerunInput: Record<string, unknown>;
+            switch (agentName) {
+                case "vision":
+                    rerunInput = { intake, revision_instruction: request.instruction };
+                    break;
+                case "scope":
+                    rerunInput = { intake, vision, revision_instruction: request.instruction };
+                    break;
+                case "distribution":
+                    rerunInput = { intake, vision, scope, revision_instruction: request.instruction };
+                    break;
+                case "architecture":
+                    rerunInput = { intake, vision, scope, distribution, revision_instruction: request.instruction };
+                    break;
+                default:
+                    continue; // skip unknown agents
+            }
+
+            const rerunResult = await callAgent(agentName, rerunInput);
 
             // Validate and replace the agent's output
             switch (agentName) {
@@ -114,10 +133,10 @@ export async function runDraft(intakeUnknown: unknown): Promise<DraftState> {
                     break;
             }
 
-            rerunAgents.push(agentName);
+            rerunSet.add(agentName);
         }
 
-        // Re-run QA once after reruns
+        // Re-run QA once after all reruns
         const qaRerunRaw = await callAgent("qa", {
             intake,
             vision,
@@ -127,7 +146,7 @@ export async function runDraft(intakeUnknown: unknown): Promise<DraftState> {
         });
         validateQAOrThrow(qaRerunRaw);
         qa = qaRerunRaw as QA;
-        qa.reruns_triggered = rerunAgents;
+        qa.reruns_triggered = [...rerunSet];
     }
 
     // 8. Scoring (deterministic — no agent call)
