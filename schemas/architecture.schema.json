@@ -1,0 +1,63 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "architecture.schema.json",
+    "title": "Draft Architecture Agent Output",
+    "description": "Output schema for the Architecture agent: stack, data model, API surface, and timeline plan.",
+    "type": "object",
+    "properties": {
+        "stack": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            },
+            "minItems": 1,
+            "description": "Technology stack components."
+        },
+        "data_model": {
+            "type": "object",
+            "description": "Minimal data model for the 3 MVP features.",
+            "properties": {
+                "tables": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "description": "List of table/collection names."
+                },
+                "description": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "Plain-text description of the data model."
+                }
+            },
+            "required": [
+                "tables",
+                "description"
+            ],
+            "additionalProperties": false
+        },
+        "api_surface": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            },
+            "minItems": 1,
+            "description": "List of API endpoints scoped to the 3 MVP features."
+        },
+        "fourteen_day_plan": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            },
+            "minItems": 3,
+            "description": "Phased build plan (at least 3 phases). Field name kept for doc consistency; actual duration governed by intake.constraints.timeline_days."
+        }
+    },
+    "required": [
+        "stack",
+        "data_model",
+        "api_surface",
+        "fourteen_day_plan"
+    ],
+    "additionalProperties": false
+}

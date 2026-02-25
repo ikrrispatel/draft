@@ -1,0 +1,72 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "vision.schema.json",
+    "title": "Draft Vision Agent Output",
+    "description": "Output schema for the Vision agent: wedge statement, structured ICP, differentiation, and assumptions.",
+    "type": "object",
+    "properties": {
+        "wedge_statement": {
+            "type": "string",
+            "minLength": 10,
+            "description": "Single-sentence wedge statement defining the core value proposition."
+        },
+        "icp": {
+            "type": "object",
+            "description": "Structured Ideal Customer Profile.",
+            "properties": {
+                "role": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "Job role or title of the ideal customer."
+                },
+                "industry": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "Industry or vertical of the ideal customer."
+                },
+                "company_size": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "Company size descriptor."
+                },
+                "behavior_qualifier": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "Observable behaviour that qualifies the customer (e.g. 'sends 50+ cold emails per day')."
+                },
+                "pain_trigger_event": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "Event or situation that triggers the customer's pain point."
+                }
+            },
+            "required": [
+                "role",
+                "industry",
+                "company_size",
+                "behavior_qualifier",
+                "pain_trigger_event"
+            ],
+            "additionalProperties": false
+        },
+        "differentiation_angle": {
+            "type": "string",
+            "minLength": 3,
+            "description": "How this product differs from existing alternatives."
+        },
+        "assumptions": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            },
+            "description": "Key assumptions the wedge depends on being true."
+        }
+    },
+    "required": [
+        "wedge_statement",
+        "icp",
+        "differentiation_angle",
+        "assumptions"
+    ],
+    "additionalProperties": false
+}

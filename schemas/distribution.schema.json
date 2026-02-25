@@ -1,0 +1,52 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "distribution.schema.json",
+    "title": "Draft Distribution Agent Output",
+    "description": "Output schema for the Distribution agent: first-10 customer plan, outreach message, and ICP-channel alignment.",
+    "type": "object",
+    "properties": {
+        "first_10_plan": {
+            "type": "object",
+            "description": "Concrete plan to acquire the first 10 customers.",
+            "properties": {
+                "channel": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "Primary acquisition channel."
+                },
+                "strategy": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "Step-by-step strategy with concrete numbers."
+                },
+                "timeline": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "When within the build plan this outreach happens."
+                }
+            },
+            "required": [
+                "channel",
+                "strategy",
+                "timeline"
+            ],
+            "additionalProperties": false
+        },
+        "outreach_message": {
+            "type": "string",
+            "minLength": 10,
+            "description": "Ready-to-send cold outreach message."
+        },
+        "channel_icp_alignment": {
+            "type": "string",
+            "minLength": 5,
+            "description": "Explanation of why the chosen channel matches the ICP."
+        }
+    },
+    "required": [
+        "first_10_plan",
+        "outreach_message",
+        "channel_icp_alignment"
+    ],
+    "additionalProperties": false
+}

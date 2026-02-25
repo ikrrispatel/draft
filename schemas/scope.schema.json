@@ -1,0 +1,56 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "scope.schema.json",
+    "title": "Draft Scope Agent Output",
+    "description": "Output schema for the Scope agent: exactly 3 features and exactly 3 kill-list items.",
+    "type": "object",
+    "properties": {
+        "features": {
+            "type": "array",
+            "minItems": 3,
+            "maxItems": 3,
+            "items": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "minLength": 1,
+                        "description": "Short name for this MVP feature."
+                    },
+                    "description": {
+                        "type": "string",
+                        "minLength": 1,
+                        "description": "What this feature does."
+                    },
+                    "rationale": {
+                        "type": "string",
+                        "minLength": 1,
+                        "description": "Why this feature is included (must reference wedge or ICP)."
+                    }
+                },
+                "required": [
+                    "name",
+                    "description",
+                    "rationale"
+                ],
+                "additionalProperties": false
+            },
+            "description": "Exactly 3 MVP features."
+        },
+        "kill_list": {
+            "type": "array",
+            "minItems": 3,
+            "maxItems": 3,
+            "items": {
+                "type": "string",
+                "minLength": 1
+            },
+            "description": "Exactly 3 features explicitly excluded from the MVP."
+        }
+    },
+    "required": [
+        "features",
+        "kill_list"
+    ],
+    "additionalProperties": false
+}

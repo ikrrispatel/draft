@@ -1,0 +1,45 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "state.schema.json",
+    "title": "Draft Shared State",
+    "description": "Top-level shared state object passed through the Draft agent pipeline.",
+    "type": "object",
+    "properties": {
+        "intake": {
+            "$ref": "intake.schema.json"
+        },
+        "vision": {
+            "$ref": "vision.schema.json"
+        },
+        "scope": {
+            "$ref": "scope.schema.json"
+        },
+        "distribution": {
+            "$ref": "distribution.schema.json"
+        },
+        "architecture": {
+            "$ref": "architecture.schema.json"
+        },
+        "qa": {
+            "$ref": "qa.schema.json"
+        },
+        "scores": {
+            "$ref": "scores.schema.json"
+        },
+        "blueprint_md": {
+            "type": "string",
+            "description": "Final assembled Markdown blueprint."
+        }
+    },
+    "required": [
+        "intake",
+        "vision",
+        "scope",
+        "distribution",
+        "architecture",
+        "qa",
+        "scores",
+        "blueprint_md"
+    ],
+    "additionalProperties": false
+}

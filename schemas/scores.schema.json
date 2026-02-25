@@ -1,0 +1,119 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "scores.schema.json",
+    "title": "Draft Scoring Agent Output",
+    "description": "Output schema for the Scoring agent: per-category scores and structured explanations.",
+    "type": "object",
+    "properties": {
+        "vision_clarity": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100,
+            "description": "Vision Clarity score (0–100)."
+        },
+        "scope_discipline": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100,
+            "description": "Scope Discipline score (0–100)."
+        },
+        "feasibility": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100,
+            "description": "Feasibility score (0–100)."
+        },
+        "distribution_readiness": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100,
+            "description": "Distribution Readiness score (0–100)."
+        },
+        "overall": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100,
+            "description": "Overall Execution Readiness score (0–100). Computed via weighted formula."
+        },
+        "explanations": {
+            "type": "object",
+            "description": "Per-category structured score explanations.",
+            "properties": {
+                "vision_clarity": {
+                    "$ref": "#/$defs/category_explanation"
+                },
+                "scope_discipline": {
+                    "$ref": "#/$defs/category_explanation"
+                },
+                "feasibility": {
+                    "$ref": "#/$defs/category_explanation"
+                },
+                "distribution_readiness": {
+                    "$ref": "#/$defs/category_explanation"
+                }
+            },
+            "required": [
+                "vision_clarity",
+                "scope_discipline",
+                "feasibility",
+                "distribution_readiness"
+            ],
+            "additionalProperties": false
+        }
+    },
+    "required": [
+        "vision_clarity",
+        "scope_discipline",
+        "feasibility",
+        "distribution_readiness",
+        "overall",
+        "explanations"
+    ],
+    "additionalProperties": false,
+    "$defs": {
+        "category_explanation": {
+            "type": "object",
+            "properties": {
+                "score": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 100,
+                    "description": "Score for this category (0–100)."
+                },
+                "rules_applied": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "description": "Rule IDs that passed (e.g. 'V-1', 'S-3')."
+                },
+                "rules_failed": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "description": "Rule IDs that failed."
+                },
+                "caps_applied": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "description": "Cap rule IDs that were applied (e.g. 'V-5')."
+                },
+                "explanation": {
+                    "type": "string",
+                    "description": "≤ 2 sentence justification referencing specific shared state fields."
+                }
+            },
+            "required": [
+                "score",
+                "rules_applied",
+                "rules_failed",
+                "caps_applied",
+                "explanation"
+            ],
+            "additionalProperties": false
+        }
+    }
+}

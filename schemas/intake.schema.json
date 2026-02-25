@@ -1,0 +1,89 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "intake.schema.json",
+  "title": "Draft Intake",
+  "description": "Canonical intake schema for a Draft pipeline run.",
+  "type": "object",
+  "properties": {
+    "idea_summary": {
+      "type": "string",
+      "minLength": 5,
+      "description": "Brief description of the AI micro-SaaS idea (2–5 sentences)."
+    },
+    "problem_statement": {
+      "type": "string",
+      "minLength": 5,
+      "description": "What problem does this idea solve for the target buyer?"
+    },
+    "target_buyer": {
+      "type": "object",
+      "description": "Who is the target buyer?",
+      "properties": {
+        "role": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Job role or title of the target buyer."
+        },
+        "industry": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Industry or vertical the target buyer operates in."
+        },
+        "company_size": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Company size descriptor (e.g. '10-50 employees')."
+        }
+      },
+      "required": ["role", "industry", "company_size"],
+      "additionalProperties": false
+    },
+    "ai_component": {
+      "type": "string",
+      "minLength": 3,
+      "description": "What AI/LLM capability powers this product?"
+    },
+    "constraints": {
+      "type": "object",
+      "description": "Builder constraints for timeline, skill, and budget.",
+      "properties": {
+        "timeline_days": {
+          "type": "integer",
+          "minimum": 7,
+          "maximum": 30,
+          "default": 14,
+          "description": "Maximum number of days for the build plan."
+        },
+        "skill_level": {
+          "type": "string",
+          "enum": ["beginner", "intermediate", "advanced"],
+          "description": "Builder's self-assessed technical skill level."
+        },
+        "budget": {
+          "type": "string",
+          "enum": ["low", "medium", "high"],
+          "description": "Available budget for tooling, hosting, and APIs."
+        }
+      },
+      "required": ["timeline_days", "skill_level", "budget"],
+      "additionalProperties": false
+    },
+    "existing_alternatives": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "minItems": 0,
+      "description": "List of existing solutions the target buyer uses today."
+    }
+  },
+  "required": [
+    "idea_summary",
+    "problem_statement",
+    "target_buyer",
+    "ai_component",
+    "constraints",
+    "existing_alternatives"
+  ],
+  "additionalProperties": false
+}
