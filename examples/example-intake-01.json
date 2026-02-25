@@ -1,0 +1,20 @@
+{
+    "idea_summary": "AI-powered cold email personaliser that generates custom opening lines from LinkedIn profile data for B2B sales reps",
+    "problem_statement": "SDRs spend 10+ minutes per prospect manually researching and writing personalised email openers, limiting daily outbound volume",
+    "target_buyer": {
+        "role": "SDR",
+        "industry": "B2B SaaS",
+        "company_size": "10-50 employees"
+    },
+    "ai_component": "GPT-4o generates personalised email opening lines from scraped LinkedIn profile data",
+    "constraints": {
+        "timeline_days": 14,
+        "skill_level": "advanced",
+        "budget": "low"
+    },
+    "existing_alternatives": [
+        "Lemlist",
+        "Instantly",
+        "Manual research"
+    ]
+}

@@ -16,3 +16,4 @@ out
 
 # Misc
 *.log
+tsconfig.tsbuildinfo
