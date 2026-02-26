@@ -22,10 +22,19 @@ You MUST output a single JSON object matching `schemas/architecture.schema.json`
 ### Output Template
 
 ```
-{"stack":[],"data_model":{"tables":[],"description":""},"api_surface":[],"fourteen_day_plan":[]}
+{
+  "stack": ["", "", ""],
+  "data_model": { "tables": [], "description": "" },
+  "api_surface": [],
+  "fourteen_day_plan": []
+}
 ```
 
 ## Rules
+CRITICAL TYPE RULES:
+- "stack" MUST be an array of STRINGS only. Example: ["Next.js", "Node.js", "Ollama"]
+- Do NOT output objects in stack (no {"name": "..."}).
+- Every item in stack must be a plain string.
 
 1. **Realistic stack.** Choose technologies appropriate for the builder's `intake.constraints.skill_level`, `intake.constraints.timeline_days`, and `intake.constraints.budget`. Do not suggest enterprise tooling for a "beginner" / "low" budget builder.
 2. **Data model.** `data_model.tables` is an array of table or collection names. `data_model.description` is a 1-sentence summary of the schema.

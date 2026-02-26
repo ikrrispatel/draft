@@ -63,6 +63,18 @@ export async function runDraft(intakeUnknown: unknown): Promise<DraftState> {
         scope,
         distribution,
     });
+
+    // normalize stack to string[] (local models sometimes return objects)
+    if (architectureRaw && Array.isArray((architectureRaw as any).stack)) {
+        (architectureRaw as any).stack = (architectureRaw as any).stack.map((x: any) => {
+            if (typeof x === "string") return x;
+            if (x && typeof x === "object") {
+                return String(x.name ?? x.label ?? x.value ?? JSON.stringify(x));
+            }
+            return String(x);
+        });
+    }
+
     validateArchitectureOrThrow(architectureRaw);
     let architecture = architectureRaw as Architecture;
 

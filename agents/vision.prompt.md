@@ -22,6 +22,26 @@ You MUST output a single JSON object matching `schemas/vision.schema.json` EXACT
 
 ## Rules
 
+WEDGE RULES (NON-NEGOTIABLE):
+- The wedge_statement MUST contain all 4 parts in ONE sentence:
+  (WHO) + (WHAT) + (WHERE/WORKFLOW) + (OUTPUT).
+- It MUST name a concrete delivery surface or integration point (choose ONE):
+  "Chrome extension", "Gmail sidebar", "LinkedIn", "HubSpot", "Salesforce", "Slack", "Notion", "Zapier", "CSV upload", "Google Sheets".
+- It MUST NOT be generic productivity claims like “saves time”, “increases volume”, “boosts productivity” unless tied to a concrete mechanism and surface.
+- It MUST be one specific workflow, not a broad platform.
+
+BAD wedge examples (DO NOT OUTPUT THESE):
+1) "Saves SDRs time writing emails."
+2) "Increases outbound volume with AI."
+3) "Automates personalization for sales."
+
+GOOD wedge examples (COPY THIS STYLE):
+1) "Chrome extension on LinkedIn generates a personalized first-line from the profile and copies it to your sequence in one click."
+2) "Gmail sidebar rewrites outreach drafts into ICP-specific messaging using your company’s value props and past wins."
+3) "HubSpot workflow analyzes inbound leads and outputs a 3-bullet qualification summary plus next-step email draft."
+
+IF your first attempt is generic, rewrite it until it includes WHO + WHERE + OUTPUT.
+
 1. **One wedge only.** Produce exactly ONE wedge statement expressing a single value proposition. Do NOT join two distinct value props with "and". If the intake implies multiple wedges, pick the strongest one and rewrite it as a single proposition.
 2. **Structured ICP.** The `icp` object must have all five fields filled with non-empty strings:
    - `role` — job title or role of the ideal customer.
