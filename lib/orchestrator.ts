@@ -9,9 +9,9 @@ import type {
     Scope,
     Distribution,
     Architecture,
-    QA,
     Scores,
 } from "@/lib/state";
+
 import { callAgent, type AgentName } from "@/lib/agents";
 import {
     validateIntakeOrThrow,
@@ -19,9 +19,10 @@ import {
     validateScopeOrThrow,
     validateDistributionOrThrow,
     validateArchitectureOrThrow,
-    validateQAOrThrow,
     validateScoresOrThrow,
 } from "@/lib/validators";
+
+import { runDeterministicQA } from "@/lib/qa";
 import { computeScores } from "@/lib/scoring";
 import { buildBlueprint } from "@/lib/blueprint";
 
@@ -30,33 +31,29 @@ import { buildBlueprint } from "@/lib/blueprint";
  *
  * Pipeline:
  *   validate intake → vision → scope → distribution → architecture →
- *   qa → (optional targeted reruns) → scoring → blueprint
+ *   deterministic QA → (optional targeted reruns) → scoring → blueprint
  */
 export async function runDraft(intakeUnknown: unknown): Promise<DraftState> {
-    // 1. Validate intake
+    // 1) Validate intake
     validateIntakeOrThrow(intakeUnknown);
     const intake = intakeUnknown as Intake;
 
-    // 2. Vision agent
+    // 2) Vision agent
     const visionRaw = await callAgent("vision", { intake });
     validateVisionOrThrow(visionRaw);
     let vision = visionRaw as Vision;
 
-    // 3. Scope agent
+    // 3) Scope agent
     const scopeRaw = await callAgent("scope", { intake, vision });
     validateScopeOrThrow(scopeRaw);
     let scope = scopeRaw as Scope;
 
-    // 4. Distribution agent
-    const distributionRaw = await callAgent("distribution", {
-        intake,
-        vision,
-        scope,
-    });
+    // 4) Distribution agent
+    const distributionRaw = await callAgent("distribution", { intake, vision, scope });
     validateDistributionOrThrow(distributionRaw);
     let distribution = distributionRaw as Distribution;
 
-    // 5. Architecture agent
+    // 5) Architecture agent
     const architectureRaw = await callAgent("architecture", {
         intake,
         vision,
@@ -78,18 +75,19 @@ export async function runDraft(intakeUnknown: unknown): Promise<DraftState> {
     validateArchitectureOrThrow(architectureRaw);
     let architecture = architectureRaw as Architecture;
 
-    // 6. QA agent
-    const qaRaw = await callAgent("qa", {
+    // 6) QA (deterministic — no LLM)
+    let qa = runDeterministicQA({
         intake,
         vision,
         scope,
         distribution,
         architecture,
+        qa: null as any,
+        scores: null as any,
+        blueprint_md: "",
     });
-    validateQAOrThrow(qaRaw);
-    let qa = qaRaw as QA;
 
-    // 7. Handle targeted reruns (max 1 per agent, single pass)
+    // 7) Targeted reruns (max 1 per agent, single pass)
     if (qa.revision_requests.length > 0) {
         // Deduplicate: keep only the first revision_request per agent
         const seen = new Set<string>();
@@ -99,7 +97,7 @@ export async function runDraft(intakeUnknown: unknown): Promise<DraftState> {
             return true;
         });
 
-        const rerunSet = new Set<string>();
+        const rerunSet = new Set<AgentName>();
 
         for (const request of dedupedRequests) {
             const agentName = request.target_agent as AgentName;
@@ -120,7 +118,7 @@ export async function runDraft(intakeUnknown: unknown): Promise<DraftState> {
                     rerunInput = { intake, vision, scope, distribution, revision_instruction: request.instruction };
                     break;
                 default:
-                    continue; // skip unknown agents
+                    continue;
             }
 
             const rerunResult = await callAgent(agentName, rerunInput);
@@ -140,6 +138,16 @@ export async function runDraft(intakeUnknown: unknown): Promise<DraftState> {
                     distribution = rerunResult as Distribution;
                     break;
                 case "architecture":
+                    // normalize stack again for rerun output
+                    if (rerunResult && Array.isArray((rerunResult as any).stack)) {
+                        (rerunResult as any).stack = (rerunResult as any).stack.map((x: any) => {
+                            if (typeof x === "string") return x;
+                            if (x && typeof x === "object") {
+                                return String(x.name ?? x.label ?? x.value ?? JSON.stringify(x));
+                            }
+                            return String(x);
+                        });
+                    }
                     validateArchitectureOrThrow(rerunResult);
                     architecture = rerunResult as Architecture;
                     break;
@@ -148,20 +156,21 @@ export async function runDraft(intakeUnknown: unknown): Promise<DraftState> {
             rerunSet.add(agentName);
         }
 
-        // Re-run QA once after all reruns
-        const qaRerunRaw = await callAgent("qa", {
+        // Re-run deterministic QA once after all reruns
+        qa = runDeterministicQA({
             intake,
             vision,
             scope,
             distribution,
             architecture,
+            qa: null as any,
+            scores: null as any,
+            blueprint_md: "",
         });
-        validateQAOrThrow(qaRerunRaw);
-        qa = qaRerunRaw as QA;
         qa.reruns_triggered = [...rerunSet];
     }
 
-    // 8. Scoring (deterministic — no agent call)
+    // 8) Scoring (deterministic — no agent call)
     const partialState: DraftState = {
         intake,
         vision,
@@ -172,10 +181,11 @@ export async function runDraft(intakeUnknown: unknown): Promise<DraftState> {
         scores: null as unknown as Scores,
         blueprint_md: "",
     };
+
     const scores = computeScores(partialState);
     validateScoresOrThrow(scores);
 
-    // 9. Blueprint assembly
+    // 9) Blueprint assembly
     const finalState: DraftState = {
         intake,
         vision,
@@ -186,6 +196,7 @@ export async function runDraft(intakeUnknown: unknown): Promise<DraftState> {
         scores,
         blueprint_md: "",
     };
+
     finalState.blueprint_md = buildBlueprint(finalState);
 
     return finalState;
